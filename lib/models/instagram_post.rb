@@ -1,5 +1,5 @@
 class InstaScrape::InstagramPost
-  attr_accessor :link, :image, :date, :text, :username, :hi_res_image, :likes
+  attr_accessor :link, :image, :date, :text, :username, :hi_res_image, :likes, :hashtags, :comments
   def initialize(link, image, options = {})
     @image = image
     @link = link
@@ -8,5 +8,7 @@ class InstaScrape::InstagramPost
     @username = options[:username]
     @hi_res_image = options[:hi_res_image]
     @likes = options[:likes]
+    @comments = options[:comments]
+    @hashtags = options[:hashtags]
   end
 end

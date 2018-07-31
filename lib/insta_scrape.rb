@@ -39,7 +39,7 @@ module InstaScrape
   #get user info and posts
   def self.user_info_and_posts(username, include_meta_data: false)
     is_private = scrape_user_info(username)
-     if !is_private
+     if is_private == false
       return nil
     end
     scrape_user_posts(username, include_meta_data: include_meta_data)
@@ -122,23 +122,25 @@ module InstaScrape
       return false
     elsif  page.has_text?("This Account is Private")
       return false
-    end
-    @image = page.find('main header div img')["src"]
-    within("header") do
-      if page.first('span', :text => "posts", exact: true) == nil
-        post_count_html = page.find('span', :text => "post", exact: true)['innerHTML']
-      else
-        post_count_html = page.find('span', :text => "posts", exact: true)['innerHTML']
+    else
+      @image = page.find('main header div img')["src"]
+      within("header") do
+        if page.first('span', :text => "posts", exact: true) == nil
+          post_count_html = page.find('span', :text => "post", exact: true)['innerHTML']
+        else
+          post_count_html = page.find('span', :text => "posts", exact: true)['innerHTML']
+        end
+        @post_count = get_span_value(post_count_html)
+        follower_count_html = page.find('a', :text => "followers", exact: true)['innerHTML']
+        @follower_count = get_span_value(follower_count_html)
+        following_count_html = page.find('a', :text => "following", exact: true)['innerHTML']
+        @following_count = get_span_value(following_count_html)
+        description = page.find(:xpath, '//header/section/div[2]')['innerHTML']
+        @description = Nokogiri::HTML(description).text
+        @description.scan(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i) { |x| @email = x }
+        @is_winkl = @description.include? "winkl"
       end
-      @post_count = get_span_value(post_count_html)
-      follower_count_html = page.find('a', :text => "followers", exact: true)['innerHTML']
-      @follower_count = get_span_value(follower_count_html)
-      following_count_html = page.find('a', :text => "following", exact: true)['innerHTML']
-      @following_count = get_span_value(following_count_html)
-      description = page.find(:xpath, '//header/section/div[2]')['innerHTML']
-      @description = Nokogiri::HTML(description).text
-      @description.scan(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i) { |x| @email = x }
-      @is_winkl = @description.include? "winkl"
+      true
     end
   end
 
